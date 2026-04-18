@@ -4,14 +4,18 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 
 # -----------------------------
-# Title
+# Page Config
 # -----------------------------
-st.set_page_config(page_title="Loan Prediction App", layout="centered")
-st.title("💰 Intelligent Loan Approval Prediction")
-st.write("Fill the details below to check whether the loan will be approved or rejected.")
+st.set_page_config(page_title="Loan Prediction App", page_icon="💰", layout="centered")
 
 # -----------------------------
-# Sample Dataset (Training)
+# Title
+# -----------------------------
+st.title("💰 Intelligent Loan Approval Prediction")
+st.markdown("### Check whether a loan will be approved or rejected")
+
+# -----------------------------
+# Sample Dataset
 # -----------------------------
 data = {
     'Age': [25, 35, 45, 32, 23, 40, 60, 48, 33, 28],
@@ -34,33 +38,41 @@ model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X, y)
 
 # -----------------------------
-# User Input Section
+# Sidebar Input
 # -----------------------------
-st.subheader("📋 Enter Customer Details")
+st.sidebar.header("📋 Enter Customer Details")
 
-age = st.slider("Age", 18, 70, 30)
-income = st.number_input("Income (₹)", min_value=10000, max_value=200000, value=50000)
-credit = st.slider("Credit Score", 300, 900, 700)
-loan_amount = st.number_input("Loan Amount (₹)", min_value=5000, max_value=100000, value=20000)
-loan_term = st.slider("Loan Term (years)", 1, 10, 3)
+age = st.sidebar.slider("Age", 18, 70, 30)
+income = st.sidebar.number_input("Income (₹)", 10000, 200000, 50000)
+credit = st.sidebar.slider("Credit Score", 300, 900, 700)
+loan_amount = st.sidebar.number_input("Loan Amount (₹)", 5000, 100000, 20000)
+loan_term = st.sidebar.slider("Loan Term (Years)", 1, 10, 3)
 
 # -----------------------------
-# Prediction Button
+# Prediction
 # -----------------------------
-if st.button("🔍 Predict Loan Status"):
+if st.sidebar.button("🔍 Predict"):
     input_data = np.array([[age, income, credit, loan_amount, loan_term]])
     
     prediction = model.predict(input_data)
     probability = model.predict_proba(input_data)
 
-    st.subheader("📊 Result")
+    st.subheader("📊 Prediction Result")
 
     if prediction[0] == 1:
-        st.success(f"✅ Loan Approved")
+        st.success("✅ Loan Approved")
     else:
-        st.error(f"❌ Loan Rejected")
+        st.error("❌ Loan Rejected")
 
     st.write(f"**Confidence Score:** {max(probability[0]):.2f}")
+
+    # Reason (simple logic)
+    if credit < 650:
+        st.warning("⚠️ Low credit score may affect approval")
+    elif income < 30000:
+        st.warning("⚠️ Low income may affect approval")
+    elif loan_amount > 40000:
+        st.warning("⚠️ High loan amount increases risk")
 
 # -----------------------------
 # Feature Importance
@@ -76,3 +88,9 @@ importance_df = pd.DataFrame({
 }).sort_values(by="Importance", ascending=False)
 
 st.bar_chart(importance_df.set_index('Feature'))
+
+# -----------------------------
+# Footer
+# -----------------------------
+st.markdown("---")
+st.markdown("👨‍💻 Developed for Loan Prediction Project")
